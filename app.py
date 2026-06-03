@@ -74,8 +74,8 @@ def get_thingspeak_history(dias):
         # Procesar JSON a DataFrame
         df = pd.DataFrame(feeds)
         df['Fecha'] = pd.to_datetime(df['created_at'])
-        df['Temperatura (°C)'] = pd.to_numeric(df['field1'], errors='coerce')
-        df['Humedad (%)'] = pd.to_numeric(df['field2'], errors='coerce')
+        df['Temperatura (°C)'] = pd.to_numeric(df['field2'], errors='coerce')
+        df['Humedad (%)'] = pd.to_numeric(df['field1'], errors='coerce')
         
         df = df.dropna(subset=['Temperatura (°C)', 'Humedad (%)'])
         df = df[['Fecha', 'Temperatura (°C)', 'Humedad (%)']].set_index('Fecha')
