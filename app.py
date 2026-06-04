@@ -166,7 +166,7 @@ st.markdown("""
     div[data-baseweb="select"] > div {
         background-color: #ffffff !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 0px !important;
     }
     
     /* El texto de las opciones debe ser negro */
@@ -174,13 +174,20 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* Menú desplegable (popover de opciones) en blanco con texto negro */
+    /* Menú desplegable (popover de opciones) en blanco con texto negro, rectangular y sin borde */
+    div[data-baseweb="popover"] > div {
+        background-color: #ffffff !important;
+        border: none !important;
+        border-radius: 0px !important;
+    }
     div[data-baseweb="popover"] ul {
         background-color: #ffffff !important;
         border: none !important;
+        border-radius: 0px !important;
     }
     div[data-baseweb="popover"] ul li {
         color: #000000 !important;
+        border-radius: 0px !important;
     }
     
     /* Etiquetas de los selectores en la barra lateral (blanco y más grandes) */
