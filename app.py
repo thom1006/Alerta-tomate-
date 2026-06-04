@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # Configuración inicial
-st.set_page_config(page_title="Alerta Temprana - Tomate", page_icon="🍅", layout="wide")
+st.set_page_config(page_title="Alerta Temprana - Tomate", layout="wide")
 load_dotenv()
 
 # --- CONFIGURACIÓN DEL PROYECTO ---
@@ -162,27 +162,50 @@ st.markdown("""
         font-size: 20px;
         padding: 0.2rem 0.5rem;
     }
+    /* Fondo blanco, texto negro y sin borde para las cajas de selección (options) */
+    div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+    }
+    
+    /* El texto de las opciones debe ser negro */
+    div[data-baseweb="select"] * {
+        color: #000000 !important;
+    }
+    
+    /* Menú desplegable (popover de opciones) en blanco con texto negro */
+    div[data-baseweb="popover"] ul {
+        background-color: #ffffff !important;
+        border: none !important;
+    }
+    div[data-baseweb="popover"] ul li {
+        color: #000000 !important;
+    }
+    
+    /* Etiquetas de los selectores en la barra lateral (blanco y más grandes) */
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
+        color: #ffffff !important;
+        font-size: 14px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 col1, col2 = st.columns([0.95, 0.05])
 with col1:
-    st.title("🍅 Monitor Inteligente: Alerta Temprana en Tomate")
+    st.title("Monitor Inteligente: Alerta Temprana en Tomate")
 with col2:
     actualizar = st.button("↻", help="Actualizar Datos", type="tertiary")
 
 st.markdown("Evaluación agronómica de patógenos (Alternaria solani y Botrytis cinerea) basada en termodinámica.")
 
 # --- BARRA LATERAL: MENÚ FENOLÓGICO Y CONFIGURACIÓN ---
-st.sidebar.header("⚙️ Configuración del Cultivo")
 
 etapa_fenologica = st.sidebar.selectbox(
     "Etapa Fenológica Actual", 
-    ["Desarrollo Vegetativo", "Floración", "Fructificación y Maduración"],
-    help="Indica la etapa de tu cultivo para ajustar la sensibilidad del riesgo de patógenos."
+    ["Desarrollo Vegetativo", "Floración", "Fructificación y Maduración"]
 )
 
-st.sidebar.markdown("---")
 rango_tiempo = st.sidebar.selectbox("Periodo de gráficas", ["Últimas 24 horas", "Última semana", "Último mes"])
 dias = 1 if rango_tiempo == "Últimas 24 horas" else 7 if rango_tiempo == "Última semana" else 30
 # --- CARGA DE DATOS ---
@@ -196,11 +219,11 @@ es_simulado = st.session_state[f'es_simulado_{dias}']
 
 # --- MENSAJES DE RIESGO POR ETAPA FENOLÓGICA ---
 if etapa_fenologica == "Desarrollo Vegetativo":
-    st.info("🌱 **Desarrollo Vegetativo:** Nivel de riesgo base para Alternaria en hojas basales (alto follaje incrementa riesgo). Riesgo de entrada para Botrytis si hay podas/desbrotes recientes.")
+    st.info("**Desarrollo Vegetativo:** Nivel de riesgo base para Alternaria en hojas basales (alto follaje incrementa riesgo). Riesgo de entrada para Botrytis si hay podas/desbrotes recientes.")
 elif etapa_fenologica == "Floración":
-    st.error("🌼 **Floración:** **¡ETAPA CRÍTICA para Botrytis cinerea!** (Infección por pétalos marchitos/aborto floral). Nivel de susceptibilidad alto para Alternaria.")
+    st.error("**Floración:** **¡ETAPA CRÍTICA para Botrytis cinerea!** (Infección por pétalos marchitos/aborto floral). Nivel de susceptibilidad alto para Alternaria.")
 elif etapa_fenologica == "Fructificación y Maduración":
-    st.error("🍅 **Fructificación y Maduración:** **¡ETAPA CRÍTICA para Alternaria solani!** (Máxima demanda energética, defoliación acelerada y manchas negras en frutos). Fase de reactivación latente para Botrytis (pudrición blanda por azúcares).")
+    st.error("**Fructificación y Maduración:** **¡ETAPA CRÍTICA para Alternaria solani!** (Máxima demanda energética, defoliación acelerada y manchas negras en frutos). Fase de reactivación latente para Botrytis (pudrición blanda por azúcares).")
 
 if not df_hist.empty:
     # --- 1. LECTURA DE VARIABLES ACTUALES ---
@@ -212,22 +235,22 @@ if not df_hist.empty:
     # Calcular riesgos biológicos
     riesgo_alt, riesgo_bot = evaluar_riesgo_patogenos(temp_actual, hum_actual, rocio_actual, df_hist, etapa_fenologica)
     
-    st.subheader("📊 Variables Meteorológicas Actuales")
+    st.subheader("Variables Meteorológicas Actuales")
     if es_simulado:
-        st.warning("⚠️ Mostrando datos simulados temporalmente (no hay suficientes datos reales de ThingSpeak).")
+        st.warning("Mostrando datos simulados temporalmente (no hay suficientes datos reales de ThingSpeak).")
         
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric(label="Temperatura 🌡️", value=f"{temp_actual:.1f} °C")
+        st.metric(label="Temperatura", value=f"{temp_actual:.1f} °C")
     with col2:
-        st.metric(label="Humedad Relativa 💧", value=f"{hum_actual:.1f} %")
+        st.metric(label="Humedad Relativa", value=f"{hum_actual:.1f} %")
     with col3:
         # Visualización de la Temperatura de Rocío
         dif_rocio = temp_actual - rocio_actual
         # Si la diferencia es menor a 2°C, hay peligro de condensación
         color_rocio = "normal" if dif_rocio > 2 else "inverse"
         st.metric(
-            label="Temperatura de Rocío ❄️", 
+            label="Temperatura de Rocío", 
             value=f"{rocio_actual:.1f} °C", 
             delta=f"Dif: {dif_rocio:.1f} °C", 
             delta_color=color_rocio,
@@ -237,33 +260,33 @@ if not df_hist.empty:
     st.divider()
     
     # --- 2. RECOMENDACIONES PROGRAMADAS (MANEJO AGRONÓMICO) ---
-    st.subheader("🛡️ Recomendaciones de Manejo Agronómico")
+    st.subheader("Recomendaciones de Manejo Agronómico")
     
     recomendaciones_emitidas = False
     
     if riesgo_alt == "Alto":
-        st.error("🔴 **Alternaria solani (Tizón Temprano) - RIESGO ALTO:**\n"
+        st.error("**Alternaria solani (Tizón Temprano) - RIESGO ALTO:**\n"
                  "- Aplicar tratamientos preventivos.\n"
                  "- Monitorear defoliación en el dosel inferior.\n"
                  "- Revisar niveles nutricionales de Nitrógeno.")
         recomendaciones_emitidas = True
         
     if riesgo_bot == "Alto" or etapa_fenologica == "Floración":
-        st.error("🔴 **Botrytis cinerea (Moho Gris) - RIESGO ALTO / ETAPA CRÍTICA:**\n"
+        st.error("**Botrytis cinerea (Moho Gris) - RIESGO ALTO / ETAPA CRÍTICA:**\n"
                  "- Optimizar la poda manual para favorecer la circulación de aire.\n"
                  "- Retirar pétalos senescentes.\n"
                  "- Evitar riegos que generen condensación en las flores.")
         recomendaciones_emitidas = True
         
     if not recomendaciones_emitidas:
-        st.success("🟢 **Condiciones Estables:**\n"
+        st.success("**Condiciones Estables:**\n"
                    "- Mantener el monitoreo preventivo de rutina.\n"
                    "- Los parámetros actuales no son críticos para Alternaria ni Botrytis.")
                    
     st.divider()
     
     # --- 3. GRÁFICOS TEMPORALES ---
-    st.subheader(f"📈 Evolución del Microclima ({rango_tiempo})")
+    st.subheader(f"Evolución del Microclima ({rango_tiempo})")
     
     # Gráficos en 3 columnas
     g1, g2, g3 = st.columns(3)
