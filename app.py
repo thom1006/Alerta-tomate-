@@ -147,7 +147,30 @@ def evaluar_riesgo_patogenos(temp, hum, punto_rocio, df_hist, etapa):
 
 # --- INTERFAZ (STREAMLIT) ---
 
-st.title("🍅 Monitor Inteligente: Alerta Temprana en Tomate")
+st.markdown("""
+    <style>
+    /* Mover la segunda columna de la primera fila al header nativo de Streamlit */
+    [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:nth-of-type(2) {
+        position: fixed;
+        top: 12px;
+        right: 120px;
+        width: auto !important;
+        z-index: 999999;
+    }
+    /* Asegurarnos que el icono sea visible y se comporte como botón del header */
+    [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:nth-of-type(2) button {
+        font-size: 20px;
+        padding: 0.2rem 0.5rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+col1, col2 = st.columns([0.95, 0.05])
+with col1:
+    st.title("🍅 Monitor Inteligente: Alerta Temprana en Tomate")
+with col2:
+    actualizar = st.button("↻", help="Actualizar Datos", type="tertiary")
+
 st.markdown("Evaluación agronómica de patógenos (Alternaria solani y Botrytis cinerea) basada en termodinámica.")
 
 # --- BARRA LATERAL: MENÚ FENOLÓGICO Y CONFIGURACIÓN ---
@@ -162,9 +185,6 @@ etapa_fenologica = st.sidebar.selectbox(
 st.sidebar.markdown("---")
 rango_tiempo = st.sidebar.selectbox("Periodo de gráficas", ["Últimas 24 horas", "Última semana", "Último mes"])
 dias = 1 if rango_tiempo == "Últimas 24 horas" else 7 if rango_tiempo == "Última semana" else 30
-
-actualizar = st.sidebar.button("🔄 Actualizar Datos")
-
 # --- CARGA DE DATOS ---
 if actualizar or f'historico_{dias}' not in st.session_state:
     df_hist, es_simulado = get_thingspeak_history(dias)
